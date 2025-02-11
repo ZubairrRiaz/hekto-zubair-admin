@@ -62,7 +62,7 @@ const ProductsPage = () => {
               <div className="mt-4">
                 <h3 className="text-blue-900 font-semibold">Items:</h3>
                 <ul className="list-disc pl-5 space-y-2">
-                  {customer.items.map((item: any) => (
+                  {customer.items.map((item) => (
                     <li key={item.id} className="text-gray-600">
                       <strong>{item.name}</strong><br /> Amount - PKR {item.price}
                       <p className="text-gray-500">{item.description}</p>
