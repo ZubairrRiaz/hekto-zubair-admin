@@ -129,6 +129,7 @@ const AdminDashboard: React.FC = () => {
           </div>
           <FaDollarSign className="text-blue-600 text-3xl" />
         </div>
+       
 
         {/* Pending Orders Stats */}
         <div className="bg-white p-6 rounded-lg shadow-lg border border-gray-200 flex items-center justify-between">
