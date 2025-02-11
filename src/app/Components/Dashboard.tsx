@@ -1,6 +1,11 @@
-'use client'
+'use client';
 import React, { useState, useEffect } from 'react';
-import { client } from "@/sanity/lib/client";// Make sure the client is configured
+import { client } from "@/sanity/lib/client";
+import { Bar } from 'react-chartjs-2';
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
+import { FaUser, FaProductHunt, FaDollarSign, FaRegClock } from 'react-icons/fa';
+
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 type Item = {
   name: string;
@@ -29,7 +34,6 @@ const AdminDashboard: React.FC = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      // The query you provided to fetch customer details
       const query = `*[_type == "customer"]{
         name,
         email,
@@ -46,7 +50,7 @@ const AdminDashboard: React.FC = () => {
       }`;
 
       try {
-        const data: Customer[] = await client.fetch(query); // Explicitly type the fetched data as an array of customers
+        const data: Customer[] = await client.fetch(query);
 
         // Calculate total users
         const totalUsers = data.length;
@@ -59,7 +63,7 @@ const AdminDashboard: React.FC = () => {
 
         // Calculate total revenue by summing up the price of all items
         const totalRevenue = data.reduce((acc: number, customer: Customer) => {
-          return acc + customer.items.reduce((itemAcc: number, item: Item) => itemAcc + item.price, 0);
+          return acc + customer.items.reduce((itemAcc: number, item: Item) => itemAcc + (Number(item.price) || 0), 0);
         }, 0);
 
         // Set the state variables
@@ -67,10 +71,9 @@ const AdminDashboard: React.FC = () => {
         setTotalProducts(totalProducts);
         setTotalOrders(totalOrders);
         setTotalRevenue(totalRevenue);
-        
-        // Static data for Pending Orders and New Users (You can adjust based on your needs)
-        setPendingOrders(45); // Static data for pending orders
-        setNewUsers(12); // Static data for new users
+
+        setPendingOrders(totalOrders); // Static data for pending orders
+        setNewUsers(totalUsers); // Static data for new users
 
       } catch (error) {
         console.error('Error fetching data from Sanity:', error);
@@ -80,40 +83,81 @@ const AdminDashboard: React.FC = () => {
     fetchData();
   }, []);
 
+  // Chart Data for Users and Products
+  const chartData = {
+    labels: ['Total Users', 'Total Products'],
+    datasets: [
+      {
+        label: 'Analytics',
+        data: [totalUsers, totalProducts],
+        backgroundColor: ['#4CAF50', '#FF9800'],
+        borderColor: ['#4CAF50', '#FF9800'],
+        borderWidth: 1,
+      },
+    ],
+  };
+
   return (
-    <div>
-      {/* Content Area */}
+    <div className="p-6">
+      {/* Title */}
+      <h1 className="text-3xl font-semibold text-center mb-6">Admin Dashboard</h1>
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div className="bg-white p-4 rounded shadow-md border border-black border-opacity-25">
-          <h2 className="text-xl font-semibold text-blue-600">Total Users</h2>
-          <p className="text-xl font-bold">{totalUsers}</p>
+        {/* User Stats */}
+        <div className="bg-white p-6 rounded-lg shadow-lg border border-gray-200 flex items-center justify-between">
+          <div>
+            <h2 className="text-xl font-semibold text-blue-600">Total Users</h2>
+            <p className="text-2xl font-bold">{totalUsers}</p>
+          </div>
+          <FaUser className="text-blue-600 text-3xl" />
         </div>
-        <div className="bg-white p-4 rounded shadow-md border border-black border-opacity-25">
-          <h2 className="text-xl font-semibold text-blue-600">Total Products</h2>
-          <p className="text-xl font-bold">{totalProducts}</p>
+
+        {/* Product Stats */}
+        <div className="bg-white p-6 rounded-lg shadow-lg border border-gray-200 flex items-center justify-between">
+          <div>
+            <h2 className="text-xl font-semibold text-blue-600">Total Products</h2>
+            <p className="text-2xl font-bold">{totalProducts}</p>
+          </div>
+          <FaProductHunt className="text-blue-600 text-3xl" />
         </div>
-        <div className="bg-white p-4 rounded shadow-md border border-black border-opacity-25">
-          <h2 className="text-xl font-semibold text-blue-600">Total Orders</h2>
-          <p className="text-xl font-bold">{totalOrders}</p>
+
+        {/* Revenue Stats */}
+        <div className="bg-white p-6 rounded-lg shadow-lg border border-gray-200 flex items-center justify-between">
+          <div>
+            <h2 className="text-xl font-semibold text-blue-600">Total Revenue</h2>
+            <p className="text-2xl font-bold">PKR {totalRevenue}</p>
+          </div>
+          <FaDollarSign className="text-blue-600 text-3xl" />
         </div>
-        <div className="bg-white p-4 rounded shadow-md border border-black border-opacity-25">
-          <h2 className="text-xl font-semibold text-blue-600">Total Revenue</h2>
-          <p className="text-xl font-bold">PKR {totalRevenue}</p>
+
+        {/* Pending Orders Stats */}
+        <div className="bg-white p-6 rounded-lg shadow-lg border border-gray-200 flex items-center justify-between">
+          <div>
+            <h2 className="text-xl font-semibold text-blue-600">Pending Orders</h2>
+            <p className="text-2xl font-bold">{pendingOrders}</p>
+          </div>
+          <FaRegClock className="text-blue-600 text-3xl" />
         </div>
-        <div className="bg-white p-4 rounded shadow-md border border-black border-opacity-25">
-          <h2 className="text-xl font-semibold text-blue-600">Pending Orders</h2>
-          <p className="text-xl font-bold">{pendingOrders}</p>
-        </div>
-        <div className="bg-white p-4 rounded shadow-md border border-black border-opacity-25">
-          <h2 className="text-xl font-semibold text-blue-600">New Users</h2>
-          <p className="text-xl font-bold">{newUsers}</p>
-        </div>
+      </div>
+
+      {/* Chart Section */}
+      <div className="bg-white p-6 mt-6 rounded-lg shadow-lg border border-gray-200">
+        <h2 className="text-2xl font-semibold text-blue-600 mb-4">User & Product Analytics</h2>
+        <Bar data={chartData} options={{
+          responsive: true,
+          plugins: {
+            legend: {
+              position: 'top',
+            },
+            title: {
+              display: true,
+              text: 'Total Users vs Products',
+            },
+          },
+        }} />
       </div>
     </div>
   );
 };
 
 export default AdminDashboard;
-
-
-
