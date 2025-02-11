@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Key } from 'react';
 import { client } from "@/sanity/lib/client";
 import { Bar } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
@@ -14,7 +14,8 @@ type Item = {
   price: number;
 };
 
-type Customer = {
+export type Customer = {
+  _id: Key | null | undefined;
   name: string;
   email: string;
   phone: string;
@@ -27,10 +28,10 @@ type Customer = {
 const AdminDashboard: React.FC = () => {
   const [totalUsers, setTotalUsers] = useState(0);
   const [totalProducts, setTotalProducts] = useState(0);
-  const [totalOrders, setTotalOrders] = useState(0);
+  const [, setTotalOrders] = useState(0);
   const [totalRevenue, setTotalRevenue] = useState(0);
   const [pendingOrders, setPendingOrders] = useState(0);
-  const [newUsers, setNewUsers] = useState(0);
+  const [, setNewUsers] = useState(0);
 
   useEffect(() => {
     const fetchData = async () => {

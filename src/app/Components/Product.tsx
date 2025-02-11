@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { client } from "@/sanity/lib/client";// Make sure the client is configured
+import { Customer } from "./Dashboard";
 
 // GROQ query to fetch the customer data
 const fetchCustomerData = async () => {
@@ -30,7 +31,7 @@ const fetchCustomerData = async () => {
 };
 
 const ProductsPage = () => {
-  const [customers, setCustomers] = useState<any[]>([]);
+  const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
